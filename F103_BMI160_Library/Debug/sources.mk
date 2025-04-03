@@ -27,4 +27,5 @@ BMI160_SensorAPI \
 Core/Src \
 Core/Startup \
 Drivers/STM32F1xx_HAL_Driver/Src \
+SensorFusion/MahonyAHRS/Src \
 

@@ -26,7 +26,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/bmi160.h \
  C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/bmi160_defs.h \
  C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/bmi160_defs.h \
- C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/BMI160_Porting/Inc/bmi160_port.h
+ C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/BMI160_Porting/Inc/bmi160_port.h \
+ C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/SensorFusion/MahonyAHRS/Inc/MahonyAHRS.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -56,3 +57,4 @@ C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/bmi1
 C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/bmi160_defs.h:
 C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/bmi160_defs.h:
 C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/BMI160_SensorAPI/BMI160_Porting/Inc/bmi160_port.h:
+C:/Users/Kubilay/Desktop/bmi160_driver/F103_BMI160_Library/SensorFusion/MahonyAHRS/Inc/MahonyAHRS.h:

@@ -25,7 +25,7 @@
 #include "bmi160.h"
 #include "bmi160_defs.h"
 #include "bmi160_port.h"
-#include <math.h>
+#include "MahonyAHRS.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,73 +63,6 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-// Sensör Hassasiyetleri
-#define GYRO_SENSITIVITY 16.4f   // ±2000 dps -> 16.4 LSB/dps
-#define ACCEL_SENSITIVITY 2048.0f // ±16g -> 2048 LSB/g
-
-// Örnekleme Süresi (50ms)
-#define DT 0.05f
-
-// Kalman Filtre Parametreleri
-float roll = 0.0f, pitch = 0.0f, yaw = 0.0f;
-float P[2][2] = {{1, 0}, {0, 1}};
-float Q_angle = 0.001f, Q_bias = 0.003f, R_measure = 0.03f;
-float bias_roll = 0.0f, bias_pitch = 0.0f;
-float rate_roll, rate_pitch, rate_yaw;
-
-// Low-Pass Filtre için kesim frekansı
-#define FC 1.0f  // Kesim frekansı (Hz) - 1 Hz seçildi
-#define ALPHA (DT / (DT + (1.0f / (2.0f * M_PI * FC))))  // Filtre katsayısı
-
-// Kalman Filtre Fonksiyonu
-float kalman_filter(float angle, float rate, float accel_angle, float *bias, float P[2][2]) {
-    rate -= *bias;
-    angle += rate * DT;
-
-    P[0][0] += DT * (DT * P[1][1] - P[0][1] - P[1][0] + Q_angle);
-    P[0][1] -= DT * P[1][1];
-    P[1][0] -= DT * P[1][1];
-    P[1][1] += Q_bias * DT;
-
-    float S = P[0][0] + R_measure;
-    float K[2] = { P[0][0] / S, P[1][0] / S };
-
-    float y = accel_angle - angle;
-    angle += K[0] * y;
-    *bias += K[1] * y;
-
-    float P00_temp = P[0][0], P01_temp = P[0][1];
-    P[0][0] -= K[0] * P00_temp;
-    P[0][1] -= K[0] * P01_temp;
-    P[1][0] -= K[1] * P00_temp;
-    P[1][1] -= K[1] * P01_temp;
-
-    return angle;
-}
-
-// Euler Açılarının Hesaplanması
-void update_euler_angles(int16_t ax, int16_t ay, int16_t az, int16_t gx, int16_t gy, int16_t gz) {
-    // İvmeölçerden eğim açılarını hesapla
-    float accel_roll  = atan2f(ay, az) * 180.0f / M_PI;
-    float accel_pitch = atan2f(-ax, sqrtf(ay * ay + az * az)) * 180.0f / M_PI;
-
-    // Jiroskop verisini derece/saniyeye çevir
-    rate_roll  = gx / GYRO_SENSITIVITY;
-    rate_pitch = gy / GYRO_SENSITIVITY;
-    rate_yaw   = gz / GYRO_SENSITIVITY;
-
-    // 🔥 **Kalman Filtre ile Roll ve Pitch Güncelle**
-    roll  = kalman_filter(roll, rate_roll, accel_roll, &bias_roll, P);
-    pitch = kalman_filter(pitch, rate_pitch, accel_pitch, &bias_pitch, P);
-
-    // 🔥 **Roll, Pitch ve Yaw için Low-Pass Filtre Eklendi!**
-    roll  = ALPHA * roll  + (1 - ALPHA) * accel_roll;
-    pitch = ALPHA * pitch + (1 - ALPHA) * accel_pitch;
-    yaw   = ALPHA * (yaw + rate_yaw * DT) + (1 - ALPHA) * yaw;
-
-    printf("Roll: %.2f\tPitch: %.2f\tYaw: %.2f\n", roll, pitch, yaw);
-}
-
 static struct bmi160_dev bmi160 = {0};
 
 /*! @brief variable to hold the bmi160 accel data */
@@ -231,6 +164,7 @@ int main(void)
       printf("BMI160 set sens ERROR\n");
   }
 
+  double pitch=0,yaw=0,roll=0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -246,10 +180,15 @@ int main(void)
 
 	  if(rslt == BMI160_OK)
 	  {
-		  update_euler_angles(bmi160_accel.x, bmi160_accel.y, bmi160_accel.z,\
-				  bmi160_gyro.x, bmi160_gyro.y, bmi160_gyro.z);
+		  MahonyAHRSupdateIMU( (float)bmi160_gyro.x/(float)16.4, (float)bmi160_gyro.y/(float)16.4, (float)bmi160_gyro.z/(float)16.4,\
+				  (float)bmi160_accel.x, (float)bmi160_accel.y, (float)bmi160_accel.z);
 
 	  }
+
+	  yaw = atan2((2*q1*q2-2*q0*q3),(2*pow(q0,2)+2*pow(q1,2)-1));
+	  roll = -asin(((2*q1*q3) + (2*q0*q2)));
+	  pitch = atan2((2*q2*q3-2*q0*q1),(2*pow(q0,2)+2*pow(q3,2)-1));
+	  printf("%f %f %f\n",yaw,roll,pitch);
       HAL_Delay(50);
   }
   /* USER CODE END 3 */
