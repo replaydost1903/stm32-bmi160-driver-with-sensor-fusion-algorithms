@@ -1,0 +1,3 @@
+../BMI160_SensorAPI/BMI160_Porting/Src/bmi160_port.c:5:8:bmi160_write	32	static
+../BMI160_SensorAPI/BMI160_Porting/Src/bmi160_port.c:11:8:bmi160_read	32	static
+../BMI160_SensorAPI/BMI160_Porting/Src/bmi160_port.c:17:6:delay_ms	16	static

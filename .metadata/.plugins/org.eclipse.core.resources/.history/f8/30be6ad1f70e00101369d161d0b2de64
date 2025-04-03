@@ -1,0 +1,154 @@
+#include "bmi160.h"
+
+extern I2C_HandleTypeDef hi2c1;
+
+#if defined(BMI160_I2C_IT)
+/*
+ * I2C Read and Write Interrupt Function Declarations
+ */
+static void bmi160_i2c_write_it(uint8_t*,uint16_t,uint16_t);
+static void bmi160_i2c_read_it(uint8_t*,uint16_t,uint16_t);
+/*
+ * I2C Read and Write Interrupt Function Definitions
+ */
+static inline void bmi160_i2c_read_it(uint8_t *pData,uint16_t MemAddr,uint16_t Size)
+{
+	BMI160_I2C_STATUS(HAL_I2C_Mem_Read_IT(&hi2c1, BMI160_READ_ADDR, MemAddr, 1U, pData, Size));
+}
+
+static void bmi160_i2c_write_it(uint8_t *pData,uint16_t MemAddr,uint16_t Size)
+{
+	BMI160_I2C_STATUS(HAL_I2C_Mem_Write_IT(&hi2c1, BMI160_WRITE_ADDR, MemAddr, 1U, pData, Size));
+}
+#else
+/*
+ * I2C Read and Write Polling Function Declarations
+ */
+static void bmi160_i2c_read_poll(uint8_t*,uint16_t,uint16_t, uint32_t);
+static void bmi160_i2c_write_poll(uint8_t*,uint16_t,uint16_t,uint32_t);
+/*
+ * I2C Read and Write Polling Function Definitions
+ */
+static void bmi160_i2c_read_poll(uint8_t *pData,uint16_t MemAddr,uint16_t Size, uint32_t Timeout)
+{
+	BMI160_I2C_STATUS(HAL_I2C_Mem_Read(&hi2c1,BMI160_READ_ADDR, MemAddr,1U, pData,Size, Timeout));
+}
+static void bmi160_i2c_write_poll(uint8_t *pData,uint16_t MemAddr,uint16_t Size, uint32_t Timeout)
+{
+	BMI160_I2C_STATUS(HAL_I2C_Mem_Write(&hi2c1,BMI160_WRITE_ADDR, MemAddr,1U, pData, Size, Timeout));
+}
+#endif
+
+/*
+ * The bmi160_s data structure must be set before calling this function in main.c.
+ */
+void bmi160_init(bmi160_s *bmi160)
+{
+	/* BMI160 Is ready */
+	if(HAL_OK != HAL_I2C_IsDeviceReady(&hi2c1, BMI160_WRITE_ADDR, 10, HAL_MAX_DELAY))
+	{
+		bmi160->status.IS_READY = BMI160_ERROR;
+		printf("BMI160 IS READY ERROR\n");
+		Error_Handler();
+	}
+
+	bmi160->status.IS_READY = BMI160_OK;
+	printf("BMI160 IS READY OK\n");
+
+	/* BMI160 Init Assignments */
+	bmi160->i2c_read = bmi160_i2c_read_poll;
+
+	bmi160->i2c_write = bmi160_i2c_write_poll;
+
+	/*	Read One Byte */
+	uint8_t rx_buff[1]={0};
+
+	/*	Read Chip-ID Value */
+	bmi160->i2c_read((uint8_t*)&rx_buff[0],(uint16_t)BMI160_CHIP_ID,(uint16_t)1U,(uint32_t)HAL_MAX_DELAY);
+
+	/*	CHIP-ID Register Mask Operation */
+	if(BMI160_AND_OPER(rx_buff[0],BMI160_CHIP_ID_Mask) != BMI160_CHIP_ID_VAL)
+	{
+		bmi160->status.CHIP_ID = BMI160_ERROR;
+		printf("BMI160 CHIP_ID ERROR\n");
+		Error_Handler();
+	}
+
+	bmi160->status.CHIP_ID = BMI160_OK;
+	printf("BMI160 CHIP_ID OK\n");
+
+	/* Accelerometer Self-Test Operation */
+	bmi160_acc_self_test_init(bmi160);
+}
+
+
+void bmi160_acc_self_test_init(bmi160_s *bmi160)
+{
+
+	// acc ve gyro normal moda geç
+	uint8_t tx_data[1] = {0};
+	tx_data[0] = 0xB6;
+	bmi160->i2c_write((uint8_t*)&tx_data[0],(uint16_t)BMI160_CMD,(uint16_t)1U,(uint32_t)HAL_MAX_DELAY);
+	HAL_Delay(50);
+
+	tx_data[0] = 0x11;
+	bmi160->i2c_write((uint8_t*)&tx_data[0],(uint16_t)BMI160_CMD,(uint16_t)1U,(uint32_t)HAL_MAX_DELAY);
+
+	tx_data[0] = 0x11;
+	bmi160->i2c_write((uint8_t*)&tx_data[0],(uint16_t)BMI160_CMD,(uint16_t)1U,(uint32_t)HAL_MAX_DELAY);
+	HAL_Delay(5);
+
+	// g-range 8 e ayarla
+	tx_data[0] = 0x08;
+	bmi160->i2c_write((uint8_t*)&tx_data[0],(uint16_t)BMI160_ACC_RANGE,(uint16_t)1U,(uint32_t)HAL_MAX_DELAY);
+
+	// acc ayarla
+	tx_data[0] = 0x2C;
+	bmi160->i2c_write((uint8_t*)&tx_data[0],(uint16_t)BMI160_ACC_CONF,(uint16_t)1U,(uint32_t)HAL_MAX_DELAY);
+
+	tx_data[0] = 0x0DU;
+	bmi160->i2c_write((uint8_t*)&tx_data[0],(uint16_t)BMI160_SELF_TEST,(uint16_t)1U,(uint32_t)HAL_MAX_DELAY);
+
+	HAL_Delay(50);
+
+	uint8_t rx_data[2] = {0};
+	HAL_I2C_Mem_Read(&hi2c1, BMI160_READ_ADDR, BMI160_DATA_14, 1, &rx_data[0], 2, HAL_MAX_DELAY);
+	int16_t accel_x = (int16_t)((rx_data[1]<<8)|rx_data[0]);
+
+	HAL_I2C_Mem_Read(&hi2c1, BMI160_READ_ADDR, BMI160_DATA_16, 1, &rx_data[0], 2, HAL_MAX_DELAY);
+	int16_t accel_y = (int16_t)((rx_data[1]<<8)|rx_data[0]);
+
+	HAL_I2C_Mem_Read(&hi2c1, BMI160_READ_ADDR, BMI160_DATA_18, 1, &rx_data[0], 2, HAL_MAX_DELAY);
+	int16_t accel_z = (int16_t)((rx_data[1]<<8)|rx_data[0]);
+
+	printf("accel x = %d\n",accel_x);
+	printf("accel y = %d\n",accel_y);
+	printf("accel z = %d\n",accel_z);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

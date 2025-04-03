@@ -1,0 +1,40 @@
+#include "bmi160_port.h"
+
+uint8_t GTXBuffer[512], GRXBuffer[2048];
+
+extern I2C_HandleTypeDef hi2c1;
+
+int8_t bmi160_write(uint8_t dev_addr, uint8_t reg_addr, uint8_t *read_data, uint16_t len)
+{
+	GTXBuffer[0] = reg_addr;
+	memcpy(&GTXBuffer[1], data, len);
+
+	HAL_I2C_Master_Transmit(&I2C_HANDLE, BMI160_ADDR, GTXBuffer, len+1, I2CTIMEOUT);
+	return 0;
+}
+int8_t bmi160_read(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint16_t len)
+{
+	dev_addr = ((dev_addr << 1U) | 0x1U);
+	HAL_I2C_Mem_Read(&hi2c1, dev_addr, reg_addr, 1U, data, len, HAL_MAX_DELAY);
+	return 0U;
+}
+void delay_ms(uint32_t period)
+{
+	HAL_Delay(period);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

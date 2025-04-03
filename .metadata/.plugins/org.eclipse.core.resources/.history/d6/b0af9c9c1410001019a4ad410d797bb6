@@ -1,0 +1,41 @@
+#include "bmi160_port.h"
+
+extern I2C_HandleTypeDef hi2c1;
+
+int8_t bmi160_write_poll(uint8_t dev_addr, uint8_t reg_addr, uint8_t *read_data, uint16_t len)
+{
+
+}
+int8_t bmi160_read_poll(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint16_t len)
+{
+	HAL_I2C_Mem_Read(&hi2c1, DevAddress, MemAddress, MemAddSize, pData, Size, Timeout)
+}
+//int8_t bmi160_write_it(uint8_t dev_addr, uint8_t reg_addr, uint8_t *read_data, uint16_t len)
+//{
+//
+//}
+//
+//int8_t bmi160_read_it(uint8_t dev_addr, uint8_t reg_addr, uint8_t *data, uint16_t len)
+//{
+//
+//}
+void delay_us(uint32_t period)
+{
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

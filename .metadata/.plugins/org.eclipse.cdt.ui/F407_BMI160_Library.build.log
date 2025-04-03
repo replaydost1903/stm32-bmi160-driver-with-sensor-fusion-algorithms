@@ -1,0 +1,10 @@
+02:35:05 **** Incremental Build of configuration Debug for project F407_BMI160_Library ****
+make -j8 all 
+arm-none-eabi-size  F407_BMI160_Library.elf 
+   text	   data	    bss	    dec	    hex	filename
+  23360	     12	   1772	  25144	   6238	F407_BMI160_Library.elf
+Finished building: default.size.stdout
+ 
+
+02:35:06 Build Finished. 0 errors, 0 warnings. (took 1s.69ms)
+

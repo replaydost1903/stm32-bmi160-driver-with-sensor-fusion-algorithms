@@ -1,0 +1,444 @@
+#ifndef INC_BMI160_H_
+#define INC_BMI160_H_
+
+#include "main.h"
+
+/*
+ * BMI160 Device Address
+ */
+#if defined(BMI160_I2C_SDO_VDDIO)
+	#define BMI160_DEV_ADDR		(0x69U)
+	#define BMI160_WRITE_ADDR	((uint8_t)(BMI160_DEV_ADDR << 1U))
+	#define BMI160_READ_ADDR	((uint8_t)((BMI160_DEV_ADDR << 1U) | (0x1U)))
+#else
+	#define BMI160_DEV_ADDR		(0x68U)
+	#define BMI160_WRITE_ADDR	((uint8_t)(BMI160_DEV_ADDR << 1U))
+	#define BMI160_READ_ADDR	((uint8_t)((BMI160_DEV_ADDR << 1U) | (0x1U)))
+#endif
+
+/*
+ * BMI160 Some Register Address's Value
+ */
+#define BMI160_CHIP_ID_VAL		(0xD1U)
+
+/*
+ * Useful Macro Definitions
+ */
+#define MASK_8BIT 			(0xFFU)
+#define BMI160_OK			(1U)
+#define BMI160_ERROR		(0U)
+#define BMI160_TEST_STATUS(x)			if( (x) != HAL_OK ){ Error_Handler();};
+
+/*
+ * Protocol Selection Definitions
+ */
+#define	BMI160_I2C_INTERFACE	(1U)
+#define BMI160_SPI_INTERFACE	(0U)
+
+/*
+ * BMI160 Status Flag
+ */
+typedef struct
+{
+	uint16_t IS_READY : 1;
+	uint16_t CHIP_ID  : 2;
+
+
+
+}bmi160_flag;
+
+/*
+ * BMI160 I2C Read and Write Function Pointer Forward Declaration
+ */
+typedef void(*i2c_polling)(uint8_t*,uint16_t,uint16_t, uint32_t);
+typedef void(*i2c_interrupt)(uint8_t*,uint16_t,uint16_t);
+
+/*
+ * BMI160 IMU Sensor Data Structure
+ */
+typedef struct
+{
+#if defined(BMI160_I2C_IT)
+	i2c_interrupt i2c_read;
+	i2c_interrupt i2c_write;
+#else
+	i2c_polling i2c_read;
+	i2c_polling i2c_write;
+#endif
+	uint8_t *pData;
+	bmi160_flag status;
+
+
+
+
+
+}bmi160_s;
+
+/*
+ * Register Map Definitions
+ */
+#define BMI160_CHIP_ID				(0x00U)			/*<!	Read-Only	!>*/
+#define BMI160_ERR_REG				(0x02U)			/*<!	Read-Only	!>*/
+#define BMI160_PMU_STATUS			(0x03U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_0				(0x04U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_1				(0x05U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_2				(0x06U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_3				(0x07U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_4				(0x08U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_5				(0x09U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_6				(0x0AU)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_7				(0x0BU)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_8				(0x0CU)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_9				(0x0DU) 		/*<!	Read-Only	!>*/
+#define BMI160_DATA_10				(0x0EU)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_11				(0x0FU)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_12				(0x10U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_13				(0x11U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_14				(0x12U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_15				(0x13U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_16				(0x14U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_17				(0x15U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_18				(0x16U)			/*<!	Read-Only	!>*/
+#define BMI160_DATA_19				(0x17U)			/*<!	Read-Only	!>*/
+#define BMI160_SENSORTIME_0			(0x18U)			/*<!	Read-Only	!>*/
+#define BMI160_SENSORTIME_1			(0x19U)			/*<!	Read-Only	!>*/
+#define BMI160_SENSORTIME_2			(0x1AU)			/*<!	Read-Only	!>*/
+#define BMI160_STATUS				(0x1BU)			/*<!	Read-Only	!>*/
+#define BMI160_INT_STATUS_0			(0x1CU)			/*<!	Read-Only	!>*/
+#define BMI160_INT_STATUS_1			(0x1DU)			/*<!	Read-Only	!>*/
+#define BMI160_INT_STATUS_2			(0x1EU)			/*<!	Read-Only	!>*/
+#define BMI160_INT_STATUS_3			(0x1FU)			/*<!	Read-Only	!>*/
+#define BMI160_TEMPERATURE_0		(0x20U)			/*<!	Read-Only	!>*/
+#define BMI160_TEMPERATURE_1		(0x21U)			/*<!	Read-Only	!>*/
+#define BMI160_FIFO_LENGTH_0		(0x22U)			/*<!	Read-Only	!>*/
+#define BMI160_FIFO_LENGTH_1		(0x23U)			/*<!	Read-Only	!>*/
+#define BMI160_FIFO_DATA			(0x24U)			/*<!	Read-Only	!>*/
+#define BMI160_ACC_CONF				(0x40U)			/*<!	Read-Only	!>*/
+#define BMI160_ACC_RANGE			(0x41U)			/*<!	Read-Write	!>*/
+#define BMI160_GYR_CONF				(0x42U)			/*<!	Read-Write	!>*/
+#define BMI160_GYR_RANGE			(0x43U)			/*<!	Read-Write	!>*/
+#define BMI160_MAG_CONF				(0x44U)			/*<!	Read-Write	!>*/
+#define BMI160_FIFO_DOWNS			(0x45U)			/*<!	Read-Write	!>*/
+#define BMI160_FIFO_CONFIG_0		(0x46U)			/*<!	Read-Write	!>*/
+#define BMI160_FIFO_CONFIG_1		(0x47U)			/*<!	Read-Write	!>*/
+#define BMI160_MAG_IF_0				(0x4BU)			/*<!	Read-Write	!>*/
+#define BMI160_MAG_IF_1				(0x4CU)			/*<!	Read-Write	!>*/
+#define BMI160_MAG_IF_3				(0x4EU)			/*<!	Read-Write	!>*/
+#define BMI160_MAG_IF_4				(0x4FU)			/*<!	Read-Write	!>*/
+#define BMI160_INT_EN_0				(0x50U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_EN_1				(0x51U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_EN_2				(0x52U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_OUT_CTRL			(0x53U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_LATCH			(0x54U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_MAP_0			(0x55U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_MAP_1			(0x56U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_MAP_2			(0x57U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_DATA_0			(0x58U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_DATA_1			(0x59U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_LOWHIGH_0		(0x5AU)			/*<!	Read-Write	!>*/
+#define BMI160_INT_LOWHIGH_1		(0x5BU)			/*<!	Read-Write	!>*/
+#define BMI160_INT_LOWHIGH_2		(0x5CU)			/*<!	Read-Write	!>*/
+#define BMI160_INT_LOWHIGH_3		(0x5DU)			/*<!	Read-Write	!>*/
+#define BMI160_INT_LOWHIGH_4		(0x5EU)			/*<!	Read-Write	!>*/
+#define BMI160_INT_MOTION_0			(0x5FU)			/*<!	Read-Write	!>*/
+#define BMI160_INT_MOTION_1			(0x60U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_MOTION_2			(0x61U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_MOTION_3			(0x62U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_TAP_0			(0x63U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_TAP_1			(0x64U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_ORIENT_0			(0x65U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_ORIENT_1			(0x66U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_FLAT_0			(0x67U)			/*<!	Read-Write	!>*/
+#define BMI160_INT_FLAT_1			(0x68U)			/*<!	Read-Write	!>*/
+#define BMI160_FOC_CONF				(0x69U)			/*<!	Read-Write	!>*/
+#define BMI160_CONF					(0x6AU)			/*<!	Read-Write	!>*/
+#define BMI160_IF_CONF				(0x6BU)			/*<!	Read-Write	!>*/
+#define BMI160_PMU_TRIGGER			(0x6CU)			/*<!	Read-Write	!>*/
+#define BMI160_SELF_TEST			(0x6DU)			/*<!	Read-Write	!>*/
+#define BMI160_NV_CONF				(0x70U)			/*<!	Read-Write	!>*/
+#define BMI160_OFFSET_0				(0x71U)			/*<!	Read-Write	!>*/
+#define BMI160_OFFSET_1				(0x72U)			/*<!	Read-Write	!>*/
+#define BMI160_OFFSET_2				(0x73U)			/*<!	Read-Write	!>*/
+#define BMI160_OFFSET_3				(0x74U)			/*<!	Read-Write	!>*/
+#define BMI160_OFFSET_4				(0x75U)			/*<!	Read-Write	!>*/
+#define BMI160_OFFSET_5				(0x76U)			/*<!	Read-Write	!>*/
+#define BMI160_OFFSET_6				(0x77U)			/*<!	Read-Write	!>*/
+#define BMI160_STEP_CNT_0			(0x78U)			/*<!	Read-Only	!>*/
+#define BMI160_STEP_CNT_1			(0x79U)			/*<!	Read-Only	!>*/
+#define BMI160_STEP_CONF_0			(0x7AU)			/*<!	Read-Write	!>*/
+#define BMI160_STEP_CONF_1			(0x7BU)			/*<!	Read-Write	!>*/
+#define BMI160_CMD					(0x7EU)			/*<!	Read-Write	!>*/
+
+/*
+ * Register Bit-Field Masking Definitions
+ */
+#define BMI160_CHIP_ID_Mask									(MASK_8BIT)			/*<!		CHIP_ID[0:7]		!>*/
+
+#define BMI160_ERR_REG_FatalErr_Mask						(0x01U)				/*<!		ERR_REG[0]			!>*/
+#define BMI160_ERR_REG_ErrorCode_Mask						(0x1EU)				/*<!		ERR_REG[1:4]		!>*/
+#define BMI160_ERR_REG_DropCmdErr_Mask						(0x40U)				/*<!		ERR_REG[6]			!>*/
+
+#define BMI160_PMU_STATUS_MagPmuStatus_Mask					(0x03U)				/*<!		PMU_STATUS[0:1]		!>*/
+#define BMI160_PMU_STATUS_GyrPmuStatus_Mask					(0x0CU)				/*<!		PMU_STATUS[2:3]		!>*/
+#define BMI160_PMU_STATUS_AccPmuStatus_Mask					(0x30U)				/*<!		PMU_STATUS[4:5]		!>*/
+
+#define BMI160_DATA_0_MagX_7_0_Mask							(MASK_8BIT)			/*<!		DATA_0[0:7]			!>*/
+#define BMI160_DATA_1_MagX_15_8_Mask						(MASK_8BIT)			/*<!		DATA_1[0:7]			!>*/
+#define BMI160_DATA_2_MagY_7_0_Mask							(MASK_8BIT)			/*<!		DATA_2[0:7]			!>*/
+#define BMI160_DATA_3_MagY_15_8_Mask						(MASK_8BIT)			/*<!		DATA_3[0:7]			!>*/
+#define BMI160_DATA_4_MagZ_7_0_Mask							(MASK_8BIT)			/*<!		DATA_4[0:7]			!>*/
+#define BMI160_DATA_5_MagZ_15_8_Mask						(MASK_8BIT)			/*<!		DATA_5[0:7]			!>*/
+#define BMI160_DATA_6_Rhall_7_0_Mask						(MASK_8BIT)			/*<!		DATA_6[0:7]			!>*/
+#define BMI160_DATA_7_Rhall_15_8_Mask						(MASK_8BIT)			/*<!		DATA_7[0:7]			!>*/
+#define BMI160_DATA_8_GyrX_7_0_Mask							(MASK_8BIT)			/*<!		DATA_8[0:7]			!>*/
+#define BMI160_DATA_9_GyrX_15_8_Mask						(MASK_8BIT)			/*<!		DATA_9[0:7]			!>*/
+#define BMI160_DATA_10_GyrY_7_0_Mask						(MASK_8BIT)			/*<!		DATA_10[0:7]		!>*/
+#define BMI160_DATA_11_GyrY_15_8_Mask						(MASK_8BIT)			/*<!		DATA_11[0:7]		!>*/
+#define BMI160_DATA_12_GyrZ_7_0_Mask						(MASK_8BIT)			/*<!		DATA_12[0:7]		!>*/
+#define BMI160_DATA_13_GyrZ_15_8_Mask						(MASK_8BIT)			/*<!		DATA_13[0:7]		!>*/
+#define BMI160_DATA_14_AccX_7_0_Mask						(MASK_8BIT)			/*<!		DATA_14[0:7]		!>*/
+#define BMI160_DATA_15_AccX_15_8_Mask						(MASK_8BIT)			/*<!		DATA_15[0:7]		!>*/
+#define BMI160_DATA_16_AccY_7_0_Mask						(MASK_8BIT)			/*<!		DATA_16[0:7]		!>*/
+#define BMI160_DATA_17_AccY_15_8_Mask						(MASK_8BIT)			/*<!		DATA_17[0:7]		!>*/
+#define BMI160_DATA_18_AccZ_7_0_Mask						(MASK_8BIT)			/*<!		DATA_18[0:7]		!>*/
+#define BMI160_DATA_19_AccZ_15_8_Mask						(MASK_8BIT)			/*<!		DATA_19[0:7]		!>*/
+
+#define BMI160_SENSORTIME_0_SensorTime_7_0_Mask				(MASK_8BIT)			/*<!		SENSORTIME_0[0:7]	!>*/
+#define BMI160_SENSORTIME_1_SensorTime_15_8_Mask			(MASK_8BIT)			/*<!		SENSORTIME_1[0:7]	!>*/
+#define BMI160_SENSORTIME_2_SensorTime_23_16_Mask			(MASK_8BIT)			/*<!		SENSORTIME_2[0:7]	!>*/
+
+#define BMI160_STATUS_GyrSelfTest_Mask						(0x02U)			/*<!		STATUS[1]			!>*/
+#define BMI160_STATUS_MagManOp_Mask							(0x04U)			/*<!		STATUS[2]			!>*/
+#define BMI160_STATUS_FocRdy_Mask							(0x08U)			/*<!		STATUS[3]			!>*/
+#define BMI160_STATUS_NvmRdy_Mask							(0x10U)			/*<!		STATUS[4]			!>*/
+#define BMI160_STATUS_DrdyMag_Mask							(0x20U)			/*<!		STATUS[5]			!>*/
+#define BMI160_STATUS_DrdyGyr_Mask							(0x40U)			/*<!		STATUS[6]			!>*/
+#define BMI160_STATUS_DrdyAcc_Mask							(0x80U)			/*<!		STATUS[7]			!>*/
+
+#define BMI160_INT_STATUS_0_StepInt_Mask					(0x01U)			/*<!		INT_STATUS_0[0]		!>*/
+#define BMI160_INT_STATUS_0_SigmotInt_Mask					(0x02U)			/*<!		INT_STATUS_0[1]		!>*/
+#define BMI160_INT_STATUS_0_AnymInt_Mask					(0x04U)			/*<!		INT_STATUS_0[2]		!>*/
+#define BMI160_INT_STATUS_0_PmuTriggerInt_Mask				(0x08U)			/*<!		INT_STATUS_0[3]		!>*/
+#define BMI160_INT_STATUS_0_DTapInt_Mask					(0x10U)			/*<!		INT_STATUS_0[4]		!>*/
+#define BMI160_INT_STATUS_0_STapInt_Mask					(0x20U)			/*<!		INT_STATUS_0[5]		!>*/
+#define BMI160_INT_STATUS_0_OrientInt_Mask					(0x40U)			/*<!		INT_STATUS_0[6]		!>*/
+#define BMI160_INT_STATUS_0_FlatInt_Mask					(0x80U)			/*<!		INT_STATUS_0[7]		!>*/
+
+#define BMI160_INT_STATUS_1_HighGInt_Mask					(0x04U)			/*<!		INT_STATUS_1[2]		!>*/
+#define BMI160_INT_STATUS_1_LowGInt_Mask					(0x08U)			/*<!		INT_STATUS_1[3]		!>*/
+#define BMI160_INT_STATUS_1_DrdyInt_Mask					(0x10U)			/*<!		INT_STATUS_1[4]		!>*/
+#define BMI160_INT_STATUS_1_FfullInt_Mask					(0x20U)			/*<!		INT_STATUS_1[5]		!>*/
+#define BMI160_INT_STATUS_1_FwmInt_Mask						(0x40U)			/*<!		INT_STATUS_1[6]		!>*/
+#define BMI160_INT_STATUS_1_NomoInt_Mask					(0x80U)			/*<!		INT_STATUS_1[7]		!>*/
+
+#define BMI160_INT_STATUS_2_AnymFirstX_Mask					(0x01U)			/*<!		INT_STATUS_2[0]		!>*/
+#define BMI160_INT_STATUS_2_AnymFirstY_Mask					(0x02U)			/*<!		INT_STATUS_2[1]		!>*/
+#define BMI160_INT_STATUS_2_AnymFirstZ_Mask					(0x04U)			/*<!		INT_STATUS_2[2]		!>*/
+#define BMI160_INT_STATUS_2_AnymSign_Mask					(0x08U)			/*<!		INT_STATUS_2[3]		!>*/
+#define BMI160_INT_STATUS_2_TapFirstX_Mask					(0x10U)			/*<!		INT_STATUS_2[4]		!>*/
+#define BMI160_INT_STATUS_2_TapFirstY_Mask					(0x20U)			/*<!		INT_STATUS_2[5]		!>*/
+#define BMI160_INT_STATUS_2_TapFirstZ_Mask					(0x40U)			/*<!		INT_STATUS_2[6]		!>*/
+#define BMI160_INT_STATUS_2_TapSign_Mask					(0x80U)			/*<!		INT_STATUS_2[7]		!>*/
+
+#define BMI160_INT_STATUS_3_HighFirstX_Mask					(0x01U)			/*<!		INT_STATUS_3[0]		!>*/
+#define BMI160_INT_STATUS_3_HighFirstY_Mask					(0x02U)			/*<!		INT_STATUS_3[1]		!>*/
+#define BMI160_INT_STATUS_3_HighFirstZ_Mask					(0x04U)			/*<!		INT_STATUS_3[2]		!>*/
+#define BMI160_INT_STATUS_3_HighSign_Mask					(0x08U)			/*<!		INT_STATUS_3[3]		!>*/
+#define BMI160_INT_STATUS_3_Orient1_0_Mask					(0x30U)			/*<!		INT_STATUS_3[4:5]	!>*/
+#define BMI160_INT_STATUS_3_Orient2_Mask					(0x40U)			/*<!		INT_STATUS_3[6]		!>*/
+#define BMI160_INT_STATUS_3_Flat_Mask						(0x80U)			/*<!		INT_STATUS_3[7]		!>*/
+
+#define BMI160_TEMPERATURE_0_Temperature_7_0_Mask			(MASK_8BIT)			/*<!		TEMPERATURE_0[0:7]	!>*/
+#define BMI160_TEMPERATURE_1_Temperature_15_8_Mask			(MASK_8BIT)			/*<!		TEMPERATURE_1[0:7]	!>*/
+
+#define BMI160_FIFO_LENGTH_0_FifoByteCounter_0_7_Mask		(MASK_8BIT)			/*<!		FIFO_LENGTH_0[0:7]	!>*/
+#define BMI160_FIFO_LENGTH_1_FifoByteCounter_10_8_Mask		(0x07U)				/*<!		FIFO_LENGTH_1[0:2]	!>*/
+
+#define BMI160_FIFO_DATA_FifoData_Mask						(MASK_8BIT)			/*<!		FIFO_LENGTH_0[0:7]	!>*/
+
+#define BMI160_ACC_CONF_AccOdr_Mask							(0x0FU)			/*<!		ACC_CONF[0:3]		!>*/
+#define BMI160_ACC_CONF_AccBwp_Mask							(0x70U)			/*<!		ACC_CONF[4:6]		!>*/
+#define BMI160_ACC_CONF_AccUs_Mask							(0x80U)			/*<!		ACC_CONF[7]		!>*/
+
+#define BMI160_ACC_RANGE_AccRange_Mask						(0x0FU)			/*<!		ACC_RANGE[0:3]		!>*/
+
+#define BMI160_GYR_CONF_GyrOdr_Mask							(0x07U)			/*<!		GYR_CONF[0:2]		!>*/
+#define BMI160_GYR_CONF_GyrBwp_Mask							(0x30U)			/*<!		GYR_CONF[4:5]		!>*/
+
+#define BMI160_GYR_RANGE_GyrRange_Mask						(0x07U)			/*<!		GYR_RANGE[0:2]		!>*/
+
+#define BMI160_MAG_CONF_MagOdr_Mask							(0x0FU)			/*<!		MAG_CONF[0:3]		!>*/
+
+#define BMI160_FIFO_DOWNS_GyrFifoDowns_Mask					(0x07U)			/*<!		FIFO_DOWNS[0:2]		!>*/
+#define BMI160_FIFO_DOWNS_GyrFifoFiltData_Mask				(0x08U)			/*<!		FIFO_DOWNS[3]		!>*/
+#define BMI160_FIFO_DOWNS_AccFifoDowns_Mask					(0x70U)			/*<!		FIFO_DOWNS[4:6]		!>*/
+#define BMI160_FIFO_DOWNS_AccFifoFilterData_Mask			(0x80U)			/*<!		FIFO_DOWNS[7]		!>*/
+
+#define BMI160_FIFO_CONFIG_1_FifoTimeEn_Mask				(0x02U)			/*<!		FIFO_CONFIG_1[1]	!>*/
+#define BMI160_FIFO_CONFIG_1_FifoTagInt2En_Mask				(0x04U)			/*<!		FIFO_CONFIG_1[2]	!>*/
+#define BMI160_FIFO_CONFIG_1_FifoTagInt1En_Mask				(0x08U)			/*<!		FIFO_CONFIG_1[3]	!>*/
+#define BMI160_FIFO_CONFIG_1_FifoHeaderEn_Mask				(0x10U)			/*<!		FIFO_CONFIG_1[4]	!>*/
+#define BMI160_FIFO_CONFIG_1_FifoMagEn_Mask					(0x20U)			/*<!		FIFO_CONFIG_1[5]	!>*/
+#define BMI160_FIFO_CONFIG_1_FifoAccEn_Mask					(0x40U)			/*<!		FIFO_CONFIG_1[6]	!>*/
+#define BMI160_FIFO_CONFIG_1_FifoGyrEn_Mask					(0x80U)			/*<!		FIFO_CONFIG_1[7]	!>*/
+
+#define BMI160_MAG_IF_0_I2CDeviceAddr_Mask					(0xFEU)			/*<!		MAG_IF_0[1:7]		!>*/
+
+#define BMI160_MAG_IF_1_MagRdBurst_Mask						(0x03U)			/*<!		MAG_IF_1[0:1]		!>*/
+#define BMI160_MAG_IF_1_MagOffset_Mask						(0x3CU)			/*<!		MAG_IF_1[2:5]		!>*/
+#define BMI160_MAG_IF_1_MagManuelEn_Mask					(0x80U)			/*<!		MAG_IF_1[7]			!>*/
+
+#define BMI160_INT_EN_0_IntAnymoXEn_Mask					(0x01U)			/*<!		INT_EN_0[0]			!>*/
+#define BMI160_INT_EN_0_IntAnymoYEn_Mask					(0x02U)			/*<!		INT_EN_0[1]			!>*/
+#define BMI160_INT_EN_0_IntAnymoZEn_Mask					(0x04U)			/*<!		INT_EN_0[2]			!>*/
+#define BMI160_INT_EN_0_IntDTapEn_Mask						(0x10U)			/*<!		INT_EN_0[4]			!>*/
+#define BMI160_INT_EN_0_IntSTapEn_Mask						(0x20U)			/*<!		INT_EN_0[5]			!>*/
+#define BMI160_INT_EN_0_IntOrientEn_Mask					(0x40U)			/*<!		INT_EN_0[6]			!>*/
+#define BMI160_INT_EN_0_IntFlatEn_Mask						(0x80U)			/*<!		INT_EN_0[7]			!>*/
+
+#define BMI160_INT_EN_1_IntHighgXEn_Mask					(0x01U)			/*<!		INT_EN_1[0]			!>*/
+#define BMI160_INT_EN_1_IntHighgYEn_Mask					(0x02U)			/*<!		INT_EN_1[1]			!>*/
+#define BMI160_INT_EN_1_IntHighgZEn_Mask					(0x04U)			/*<!		INT_EN_1[2]			!>*/
+#define BMI160_INT_EN_1_IntLowEn_Mask						(0x08U)			/*<!		INT_EN_1[3]			!>*/
+#define BMI160_INT_EN_1_IntDrdyEn_Mask						(0x10U)			/*<!		INT_EN_1[4]			!>*/
+#define BMI160_INT_EN_1_IntFfullEn_Mask						(0x20U)			/*<!		INT_EN_1[5]			!>*/
+#define BMI160_INT_EN_1_IntFwmEn_Mask						(0x40U)			/*<!		INT_EN_1[6]			!>*/
+
+#define BMI160_INT_EN_2_IntNomoXEn_Mask						(0x01U)			/*<!		INT_EN_2[0]			!>*/
+#define BMI160_INT_EN_2_IntNomoYEn_Mask						(0x02U)			/*<!		INT_EN_2[1]			!>*/
+#define BMI160_INT_EN_2_IntNomoZEn_Mask						(0x04U)			/*<!		INT_EN_2[2]			!>*/
+#define BMI160_INT_EN_2_IntStepDetEn_Mask					(0x08U)			/*<!		INT_EN_2[3]			!>*/
+
+#define BMI160_INT_OUT_CTRL_Int1EdgeCtrl_Mask				(0x01U)			/*<!		INT_OUT_CTRL[0]		!>*/
+#define BMI160_INT_OUT_CTRL_Int1Lvl_Mask					(0x02U)			/*<!		INT_OUT_CTRL[1]		!>*/
+#define BMI160_INT_OUT_CTRL_Int1Od_Mask						(0x04U)			/*<!		INT_OUT_CTRL[2]		!>*/
+#define BMI160_INT_OUT_CTRL_Int1OutputEn_Mask				(0x08U)			/*<!		INT_OUT_CTRL[3]		!>*/
+#define BMI160_INT_OUT_CTRL_Int2EdgeCtrl_Mask				(0x10U)			/*<!		INT_OUT_CTRL[4]		!>*/
+#define BMI160_INT_OUT_CTRL_Int2Lvl_Mask					(0x20U)			/*<!		INT_OUT_CTRL[5]		!>*/
+#define BMI160_INT_OUT_CTRL_Int2Od_Mask_Mask				(0x40U)			/*<!		INT_OUT_CTRL[6]		!>*/
+#define BMI160_INT_OUT_CTRL_Int2OutputEn_Mask				(0x80U)			/*<!		INT_OUT_CTRL[7]		!>*/
+
+#define BMI160_INT_LATCH_IntLatch_Mask						(0x0FU)			/*<!		INT_LATCH[0:3]		!>*/
+#define BMI160_INT_LATCH_Int1InputEn_Mask					(0x10U)			/*<!		INT_LATCH[4]		!>*/
+#define BMI160_INT_LATCH_Int2InputEn_Mask					(0x20U)			/*<!		INT_LATCH[5]		!>*/
+
+#define BMI160_INT_MAP_0_Int1LowgStep_Mask					(0x01U)			/*<!		INT_MAP_0[0]		!>*/
+#define BMI160_INT_MAP_0_Int1Highg_Mask						(0x02U)			/*<!		INT_MAP_0[1]		!>*/
+#define BMI160_INT_MAP_0_Int1AnyMotion_Mask					(0x04U)			/*<!		INT_MAP_0[2]		!>*/
+#define BMI160_INT_MAP_0_Int1NoMotion_Mask					(0x08U)			/*<!		INT_MAP_0[3]		!>*/
+#define BMI160_INT_MAP_0_Int1DTap_Mask						(0x10U)			/*<!		INT_MAP_0[4]		!>*/
+#define BMI160_INT_MAP_0_Int1STap_Mask						(0x20U)			/*<!		INT_MAP_0[5]		!>*/
+#define BMI160_INT_MAP_0_Int1Orient_Mask					(0x40U)			/*<!		INT_MAP_0[6]		!>*/
+#define BMI160_INT_MAP_0_Int1Flat_Mask						(0x80U)			/*<!		INT_MAP_0[7]		!>*/
+
+#define BMI160_INT_MAP_1_Int2PmuTrig_Mask					(0x01U)			/*<!		INT_MAP_1[0]		!>*/
+#define BMI160_INT_MAP_1_Int2Ffull_Mask						(0x02U)			/*<!		INT_MAP_1[1]		!>*/
+#define BMI160_INT_MAP_1_Int2Fwm_Mask						(0x04U)			/*<!		INT_MAP_1[2]		!>*/
+#define BMI160_INT_MAP_1_Int2Drdy_Mask						(0x08U)			/*<!		INT_MAP_1[3]		!>*/
+#define BMI160_INT_MAP_1_Int1PmuTrig_Mask					(0x10U)			/*<!		INT_MAP_1[4]		!>*/
+#define BMI160_INT_MAP_1_Int1Ffull_Mask						(0x20U)			/*<!		INT_MAP_1[5]		!>*/
+#define BMI160_INT_MAP_1_Int1Fwm_Mask						(0x40U)			/*<!		INT_MAP_1[6]		!>*/
+#define BMI160_INT_MAP_1_Int1Drdy_Mask						(0x80U)			/*<!		INT_MAP_1[7]		!>*/
+
+#define BMI160_INT_MAP_2_Int2LowgStep_Mask					(0x01U)			/*<!		INT_MAP_2[0]		!>*/
+#define BMI160_INT_MAP_2_Int2Highg_Mask						(0x02U)			/*<!		INT_MAP_2[1]		!>*/
+#define BMI160_INT_MAP_2_Int2AnyMotion_Mask					(0x04U)			/*<!		INT_MAP_2[2]		!>*/
+#define BMI160_INT_MAP_2_Int2NoMotion_Mask					(0x08U)			/*<!		INT_MAP_2[3]		!>*/
+#define BMI160_INT_MAP_2_Int2DTap_Mask						(0x10U)			/*<!		INT_MAP_2[4]		!>*/
+#define BMI160_INT_MAP_2_Int2STap_Mask						(0x20U)			/*<!		INT_MAP_2[5]		!>*/
+#define BMI160_INT_MAP_2_Int2Orient_Mask					(0x40U)			/*<!		INT_MAP_2[6]		!>*/
+#define BMI160_INT_MAP_2_Int2Flat_Mask						(0x80U)			/*<!		INT_MAP_2[7]		!>*/
+
+#define BMI160_INT_DATA_0_IntTapSrc_Mask					(0x08U)			/*<!		INT_DATA_0[3]		!>*/
+#define BMI160_INT_DATA_0_IntLowHighSrc_Mask				(0x80U)			/*<!		INT_DATA_0[7]		!>*/
+
+#define BMI160_INT_DATA_1_IntMotionSrc_Mask					(0x80U)			/*<!		INT_DATA_1[7]		!>*/
+
+#define BMI160_INT_LOWHIGH_0_IntLowDur_Mask					(MASK_8BIT)		/*<!		INT_LOWHIGH_0[0:7]	!>*/
+#define BMI160_INT_LOWHIGH_1_IntLowTh_Mask					(MASK_8BIT)		/*<!		INT_LOWHIGH_1[0:7]	!>*/
+#define BMI160_INT_LOWHIGH_2_IntLowHy_Mask					(0x03U)			/*<!		INT_LOWHIGH_2[0:1]	!>*/
+#define BMI160_INT_LOWHIGH_2_IntHighHy_Mask					(0xC0U)			/*<!		INT_LOWHIGH_2[6:7]	!>*/
+#define BMI160_INT_LOWHIGH_3_IntHighDur_Mask				(MASK_8BIT)		/*<!		INT_LOWHIGH_3[0:7]	!>*/
+#define BMI160_INT_LOWHIGH_4_IntHighTh_Mask					(MASK_8BIT)		/*<!		INT_LOWHIGH_4[0:7]	!>*/
+
+#define BMI160_INT_MOTION_0_IntAnymDur_Mask					(0x03U)			/*<!		INT_MOTION_0[0:1]	!>*/
+#define BMI160_INT_MOTION_0_IntSloNomoDur_Mask				(0xFCU)			/*<!		INT_MOTION_0[2:7]	!>*/
+#define BMI160_INT_MOTION_1_IntAnymoTh_Mask					(MASK_8BIT)		/*<!		INT_MOTION_1[0:7]	!>*/
+#define BMI160_INT_MOTION_2_IntSoloNomoTh_Mask				(MASK_8BIT)		/*<!		INT_MOTION_2[0:7]	!>*/
+#define BMI160_INT_MOTION_3_IntSloNomoSel_Mask				(0x01U)			/*<!		INT_MOTION_3[0]		!>*/
+#define BMI160_INT_MOTION_3_IntSigMotSel_Mask				(0x02U)			/*<!		INT_MOTION_3[1]		!>*/
+#define BMI160_INT_MOTION_3_IntSigMotSkip_Mask				(0x0CU)			/*<!		INT_MOTION_3[2:3]	!>*/
+#define BMI160_INT_MOTION_3_IntSigMotProof_Mask				(0x30U)			/*<!		INT_MOTION_3[4:5]	!>*/
+
+#define BMI160_INT_TAP_0_IntTapDur_Mask						(0x07U)			/*<!		INT_TAP_0[0:2]		!>*/
+#define BMI160_INT_TAP_0_IntTapShock_Mask					(0x40U)			/*<!		INT_TAP_0[6]		!>*/
+#define BMI160_INT_TAP_0_IntTapQuiet_Mask					(0x80U)			/*<!		INT_TAP_0[7]		!>*/
+
+#define BMI160_INT_TAP_1_IntTapTh_Mask						(0x1FU)			/*<!		INT_TAP_1[0:4]		!>*/
+
+#define BMI160_INT_ORIENT_0_IntOrientMode_Mask				(0x03U)			/*<!		INT_ORIENT_0[0:1]	!>*/
+#define BMI160_INT_ORIENT_0_IntOrientBlocking_Mask			(0x0CU)			/*<!		INT_ORIENT_0[2:3]	!>*/
+#define BMI160_INT_ORIENT_0_IntOrientHy_Mask				(0xF0U)			/*<!		INT_ORIENT_0[4:7]	!>*/
+
+#define BMI160_INT_ORIENT_1_IntOrientTheta_Mask				(0x3FU)			/*<!		INT_ORIENT_1[0:5]	!>*/
+#define BMI160_INT_ORIENT_1_IntOrientUdEn_Mask				(0x40U)			/*<!		INT_ORIENT_1[6]		!>*/
+#define BMI160_INT_ORIENT_1_IntOrientAxesEx_Mask			(0x80U)			/*<!		INT_ORIENT_1[7]		!>*/
+
+#define BMI160_INT_FLAT_0_IntFlatTheta_Mask					(0x3FU)			/*<!		INT_FLAT_0[0:5]		!>*/
+
+#define BMI160_INT_FLAT_1_IntFlatHy_Mask					(0x07U)			/*<!		INT_FLAT_1[0:2]		!>*/
+#define BMI160_INT_FLAT_1_IntFlatHold_Mask					(0x30U)			/*<!		INT_FLAT_1[4:5]		!>*/
+
+#define BMI160_FOC_CONF_FocAccZ_Mask						(0x03U)			/*<!		FOC_CONF[0:1]		!>*/
+#define BMI160_FOC_CONF_FocAccY_Mask						(0x0CU)			/*<!		FOC_CONF[2:3]		!>*/
+#define BMI160_FOC_CONF_FocAccX_Mask						(0x30U)			/*<!		FOC_CONF[4:5]		!>*/
+#define BMI160_FOC_CONF_FocGyrEn_Mask						(0x40U)			/*<!		FOC_CONF[6]			!>*/
+
+#define BMI160_CONF_NvmProgEn_Mask							(0x02U)			/*<!		CONF[1]				!>*/
+
+#define BMI160_IF_CONF_Spi3_Mask							(0x01U)			/*<!		IF_CONF[0]			!>*/
+#define BMI160_IF_CONF_IfMode_Mask							(0x30U)			/*<!		IF_CONF[4:5]		!>*/
+
+#define BMI160_PMU_TRIGGER_GyrSleepTrigger_Mask				(0x07U)			/*<!		PMU_TRIGGER[0:2]	!>*/
+#define BMI160_PMU_TRIGGER_GyrWakeupTrigger_Mask			(0x18U)			/*<!		PMU_TRIGGER[3:4]	!>*/
+#define BMI160_PMU_TRIGGER_GyrSleepState_Mask				(0x20U)			/*<!		PMU_TRIGGER[5]		!>*/
+#define BMI160_PMU_TRIGGER_WakeupInt_Mask					(0x40U)			/*<!		PMU_TRIGGER[6]		!>*/
+
+#define BMI160_SELF_TEST_AccSelfTestEnable_Mask				(0x03U)			/*<!		SELF_TEST[0:1]		!>*/
+#define BMI160_SELF_TEST_AccSelfTestSign_Mask				(0x04U)			/*<!		SELF_TEST[2]		!>*/
+#define BMI160_SELF_TEST_AccSelfTestAmp_Mask				(0x08U)			/*<!		SELF_TEST[3]		!>*/
+#define BMI160_SELF_TEST_GyrSelfTestEnable_Mask				(0x10U)			/*<!		SELF_TEST[4]		!>*/
+
+#define BMI160_NV_CONF_SpiEn_Mask							(0x01U)			/*<!		NV_CONF[0]			!>*/
+#define BMI160_NV_CONF_I2CWdtSel_Mask						(0x02U)			/*<!		NV_CONF[1]			!>*/
+#define BMI160_NV_CONF_I2CWdtEn_Mask						(0x04U)			/*<!		NV_CONF[2]			!>*/
+#define BMI160_NV_CONF_USpare0_Mask							(0x08U)			/*<!		NV_CONF[3]			!>*/
+
+#define BMI160_OFFSET_0_OffAccX_Mask						(MASK_8BIT)		/*<!		OFFSET_0[0:7]		!>*/
+#define BMI160_OFFSET_1_OffAccY_Mask						(MASK_8BIT)		/*<!		OFFSET_1[0:7]		!>*/
+#define BMI160_OFFSET_2_OffAccZ_Mask						(MASK_8BIT)		/*<!		OFFSET_2[0:7]		!>*/
+#define BMI160_OFFSET_3_OffGyrX_7_0_Mask					(MASK_8BIT)		/*<!		OFFSET_3[0:7]		!>*/
+#define BMI160_OFFSET_4_OffGyrY_7_0_Mask					(MASK_8BIT)		/*<!		OFFSET_4[0:7]		!>*/
+#define BMI160_OFFSET_5_OffGyrZ_7_0_Mask					(MASK_8BIT)		/*<!		OFFSET_5[0:7]		!>*/
+#define BMI160_OFFSET_6_OffGyrX_9_8_Mask					(0x03U)			/*<!		OFFSET_6[0:1]		!>*/
+#define BMI160_OFFSET_6_OffGyrY_9_8_Mask					(0x0CU)			/*<!		OFFSET_6[2:3]		!>*/
+#define BMI160_OFFSET_6_OffGyrZ_9_8_Mask					(0x30U)			/*<!		OFFSET_6[4:5]		!>*/
+#define BMI160_OFFSET_6_AccOffEn_Mask						(0x40U)			/*<!		OFFSET_6[6]			!>*/
+#define BMI160_OFFSET_6_GyrOffEn_Mask						(0x80U)			/*<!		OFFSET_6[7]			!>*/
+
+#define BMI160_STEP_CONF_0_StepConf_7_0_Mask				(MASK_8BIT)		/*<!		STEP_CONF_0[0:7]	!>*/
+#define BMI160_STEP_CONF_1_StepConf_10_8_Mask				(0x07U)			/*<!		STEP_CONF_1[0:2]	!>*/
+#define BMI160_STEP_CONF_1_StepCntEn_Mask					(0x08U)			/*<!		STEP_CONF_1[3]		!>*/
+
+#define BMI160_CMD_Cmd_Mask									(MASK_8BIT)		/*<!		CMD[0:7]			!>*/
+
+
+extern void bmi160_init(bmi160_s*);
+
+
+
+
+
+
+
+#endif /* INC_BMI160_H_ */
